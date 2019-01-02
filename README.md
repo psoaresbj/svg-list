@@ -13,7 +13,7 @@ yarn add svg-list
 ## Usage
 
 1. Create your setup file in the root of your project with the name `.svglistrc.json`
-```json
+```javascript
 {
     "src": "icons", // source directory with multiple directories
     "dest": "src/components/icons", // target directory for js / json fiiles
