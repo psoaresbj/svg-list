@@ -32,9 +32,9 @@ yarn svglist generate
 ```bash
 yarn svglist preview
 ```
-This will fireup a simple react app that runs in port 8004 with a preview of all the icons that you have generated.
+This will fireup a simple react app that runs in port 8004 with a preview of all the svgs that you have generated.
 
-**Note**: *this will not generate the icon files for you, so you need to run generate first*
+**Note**: *this will not generate the svg files for you, so you need to run generate first*
 
 ## License
 
