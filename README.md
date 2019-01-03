@@ -12,7 +12,7 @@ yarn add svg-list
 
 ## Usage
 
-1. Create your setup file in the root of your project with the name `.svglistrc.json`
+- Create your setup file in the root of your project with the name `.svglistrc.json`
 ```javascript
 {
     "src": "icons", // source directory with multiple directories
@@ -21,14 +21,14 @@ yarn add svg-list
 }
 ```
 
-1. To generate your files run
+- To generate your files run
 ```bash
 yarn svglist generate
 ```
 
 ## To do:
 
-1. To preview your generated files run
+- To preview your generated files run
 ```bash
 yarn svglist preview
 ```
