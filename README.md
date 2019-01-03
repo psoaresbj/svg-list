@@ -7,7 +7,7 @@
 ## Install
 
 ```bash
-yarn add svg-list
+yarn add @psoares/svg-list
 ```
 
 ## Usage
