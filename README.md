@@ -4,6 +4,10 @@
 
 [![NPM](https://img.shields.io/npm/v/@psoares/svg-list.svg)](https://www.npmjs.com/package/@psoares/svg-list) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
+## Description
+
+This small script is useful to maintain your project icons updated and optimised without having the painful work of everytime you change an svg icon file you need to go through SVG optimizer, clean the code and then just add it to you custom js or json files.
+
 ## Install
 
 ```bash
