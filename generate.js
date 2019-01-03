@@ -114,7 +114,7 @@ const saveList = (name, list) => {
  */
 const createLists = dirs => dirs.map((directory, i) => {
     // creating blank list
-    list = {};
+    const list = {};
     // iterating over all
     // svg files inside dir
     dir.readFilesStream(
