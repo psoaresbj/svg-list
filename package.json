@@ -6,17 +6,24 @@
   "author": "psoaresbj",
   "repository": "psoaresbj/svg-list",
   "license": "MIT",
-  "keywords": ["icons","svgo","icon generator", "svg-list", "node", "javascript"],
+  "keywords": [
+    "icons",
+    "svgo",
+    "icon generator",
+    "svg-list",
+    "node",
+    "javascript"
+  ],
   "bin": {
     "svglist": "./index.js"
   },
   "dependencies": {
-    "camelcase": "^5.0.0",
-    "fs-extra": "^7.0.1",
+    "camelcase": "^6.2.0",
+    "fs-extra": "^9.1.0",
     "html-to-json": "^0.6.0",
     "node-dir": "^0.1.17",
-    "prettier": "^1.15.3",
-    "rimraf": "^2.6.3",
-    "svgo": "^1.1.1"
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "svgo": "^2.2.0"
   }
 }
