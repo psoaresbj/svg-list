@@ -134,14 +134,20 @@ const createLists = dirs => dirs.map((directory, i) => {
             const html = result.data.toString();
             // parses the string into json obj
             htmlToJson.parse(html, function (svg) {
-              // find viewbox
+              // find attrs
               const viewbox = svg.find('svg').attr('viewbox');
+
               // init path arr
               const paths = [];
               // iterates over each path
               // returning an obj with paths
               // array and viewbox str
-              this.map('path', (path) => paths.push(path.attr('d'))).then(
+              this.map('path', path => {
+                const attrs = path.attr();
+                delete attrs.fill;
+                const parsedAttrs = Object.keys(attrs).reduce((result, key) => ({ ...result, [camelCase(key)]: attrs[key] }), {});
+                paths.push(parsedAttrs)
+              }).then(
                 () => {
                   list[fileName] = { viewbox, paths };
                   next();
