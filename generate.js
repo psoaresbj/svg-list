@@ -41,6 +41,7 @@ if ( !rc || !rc.dest ) return console.log('You need to add dest field to project
 // ser `src` and `dest folder`
 const src = path.resolve(process.cwd(), rc.src);
 const dest = path.resolve(process.cwd(), rc.dest);
+const passAllAttributes = path.resolve(process.cwd(), rc.passAllAttributes);
 
 /**
  *
@@ -144,9 +145,10 @@ const createLists = dirs => dirs.map((directory, i) => {
               // array and viewbox str
               this.map('path', path => {
                 const attrs = path.attr();
+                const simplePath = path.attr('d');
                 delete attrs.fill;
                 const parsedAttrs = Object.keys(attrs).reduce((result, key) => ({ ...result, [camelCase(key)]: attrs[key] }), {});
-                paths.push(parsedAttrs)
+                paths.push(passAllAttributes ? parsedAttrs : simplePath)
               }).then(
                 () => {
                   list[fileName] = { viewbox, paths };
