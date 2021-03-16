@@ -1,6 +1,6 @@
 {
   "name": "@psoares/svg-list",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Generates a JSON or Javascript list with optimised SVGs strings",
   "main": "index.js",
   "author": "psoaresbj",
@@ -25,5 +25,8 @@
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "svgo": "^2.2.0"
+  },
+  "scripts": {
+    "generate": "node . generate"
   }
 }
