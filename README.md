@@ -21,7 +21,8 @@ yarn add @psoares/svg-list
 {
     "src": "icons", // source directory with multiple directories
     "dest": "src/components/icons", // target directory for js / json fiiles
-    "format": "js" // optional: `js` (default) or `json`
+    "format": "js", // optional: `js` (default) or `json`
+    "passAllAttributes": true // optional: this will ensure all attrs from each pass will be passed to the generated file
 }
 ```
 
