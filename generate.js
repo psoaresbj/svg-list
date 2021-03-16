@@ -28,6 +28,7 @@ const config = require('./config');
 // set file format
 // from rc file || `js`
 const format = rc.format && rc.format === 'json' ? 'json' : 'js';
+const { passAllAttributes } = rc;
 
 // set svgo plugins
 // from rc file or default
@@ -41,7 +42,6 @@ if ( !rc || !rc.dest ) return console.log('You need to add dest field to project
 // ser `src` and `dest folder`
 const src = path.resolve(process.cwd(), rc.src);
 const dest = path.resolve(process.cwd(), rc.dest);
-const passAllAttributes = path.resolve(process.cwd(), rc.passAllAttributes);
 
 /**
  *

@@ -19,10 +19,10 @@ yarn add @psoares/svg-list
 - Create your setup file in the root of your project with the name `.svglistrc.json`
 ```javascript
 {
+    "passAllAttributes": true, // optional: this will ensure all attrs from each pass will be passed to the generated file
     "src": "icons", // source directory with multiple directories
     "dest": "src/components/icons", // target directory for js / json fiiles
     "format": "js", // optional: `js` (default) or `json`
-    "passAllAttributes": true // optional: this will ensure all attrs from each pass will be passed to the generated file
 }
 ```
 

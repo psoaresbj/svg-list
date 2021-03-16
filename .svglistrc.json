@@ -1,4 +1,5 @@
 {
+    "passAllAttributes": true,
     "src": "icons",
     "dest": "dist"
 }
