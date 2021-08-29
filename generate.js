@@ -5,7 +5,7 @@ const fs = require('fs-extra');
 const camelCase = require('camelcase');
 const htmlToJson = require('html-to-json');
 const prettier = require('prettier');
-const { optimize } = require('svgo');
+const { optimize, loadConfig } = require('svgo');
 
 // get project root file
 const rootPath = path.resolve(process.cwd());
@@ -22,17 +22,10 @@ const rootPath = path.resolve(process.cwd());
  */
 const rc = require(path.resolve(rootPath, '.svglistrc.json'));
 
-// get default config
-const config = require('./config');
-
 // set file format
 // from rc file || `js`
-const format = rc.format && rc.format === 'json' ? 'json' : 'js';
+const format = rc?.format === 'json' ? 'json' : 'js';
 const { passAllAttributes } = rc;
-
-// set svgo plugins
-// from rc file or default
-const plugins = rc.plugins && rc.plugins.length ? rc.plugins : config.plugins;
 
 // check if rc file exists
 if ( !rc ) return console.log('You need to add project root file: `.svglistrc.json`');
@@ -107,7 +100,7 @@ const saveList = (name, list) => {
  * @param {array} dirs array of objects with folders info
  * @description function that iterates over directories and returns saveList as callback
  */
-const createLists = dirs => dirs.map((directory, i) => {
+const createLists = (dirs, plugins) => dirs.map((directory, i) => {
     // creating blank list
     const list = {};
     // iterating over all
@@ -169,6 +162,15 @@ const createLists = dirs => dirs.map((directory, i) => {
 });
 
 // prepare
-const generate = () => getDirs(dirs => createLists(dirs));
+const generate = async () => {
+  // get default config
+    const config = await loadConfig('./config');
+
+    // set svgo plugins
+    // from rc file or default
+    const plugins = rc?.plugins || config?.plugins || [];
+
+  getDirs(dirs => createLists(dirs, plugins));
+}
 
 module.exports = generate;
