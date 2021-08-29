@@ -1,5 +1,3 @@
-const { extendDefaultPlugins } = require('svgo');
-
 const config = {
   /**
    * setup SVGO plugins as you like but
@@ -9,11 +7,16 @@ const config = {
    * svg html and gets the viewbox attr and an
    * array of `d` (from paths) attrs only.
    */
-    plugins: extendDefaultPlugins([
-      { name: 'removeAttrs', attrs: '(stroke|fill)' },
+    plugins: [
+      {
+        name: 'preset-default',
+        overrides: {
+          removeViewBox: { active: false }
+        }
+      },
       'removeDimensions',
-      { name: 'removeViewBox', active: false }
-  ])
+      { name: 'removeAttrs', params: { attrs: ['fill', 'stroke', 'style'] } }
+  ]
 };
 
 module.exports = config;
