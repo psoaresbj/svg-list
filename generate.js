@@ -164,7 +164,7 @@ const createLists = (dirs, plugins) => dirs.map((directory, i) => {
 // prepare
 const generate = async () => {
   // get default config
-    const config = await loadConfig('./config');
+    const config = await loadConfig(path.resolve(__dirname, 'config.js'));
 
     // set svgo plugins
     // from rc file or default
