@@ -24,7 +24,7 @@
     "node-dir": "^0.1.17",
     "prettier": "^2.3.2",
     "rimraf": "^3.0.2",
-    "svgo": "^2.5.0"
+    "svgo": "^2.8.0"
   },
   "scripts": {
     "generate": "node . generate"
