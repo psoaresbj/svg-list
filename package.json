@@ -18,11 +18,11 @@
     "svglist": "./index.js"
   },
   "dependencies": {
-    "camelcase": "^6.2.0",
+    "camelcase": "^6.3.0",
     "fs-extra": "^10.0.0",
     "html-to-json": "^0.6.0",
     "node-dir": "^0.1.17",
-    "prettier": "^2.3.2",
+    "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
     "svgo": "^2.8.0"
   },
