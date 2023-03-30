@@ -26,7 +26,7 @@ const getRc = async () => {
     // get project root file
     const rootPath = path.resolve(process.cwd());
     const rcFilePath = path.resolve(rootPath, '.svglistrc.json');
-    const config = await svgo.loadConfig(path.resolve(rootPath, 'config.js'));
+    const config = await svgo.loadConfig(path.resolve(__dirname, 'config.js'));
 
     /**
      * REQUIRED
