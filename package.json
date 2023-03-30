@@ -1,9 +1,16 @@
 {
+  "author": {
+    "name": "Paulo Soares",
+    "email": "psoares.bj@gmail.com",
+    "url": "https://github.com/psoaresbj"
+  },
+  "main": "./index.js",
   "name": "@psoares/svg-list",
   "version": "1.1.10",
   "description": "Generates a JSON or Javascript list with optimised SVGs strings",
-  "main": "index.js",
-  "author": "psoaresbj",
+  "engines": {
+    "node": ">=15.0.0"
+  },
   "repository": "psoaresbj/svg-list",
   "license": "MIT",
   "keywords": [
@@ -18,13 +25,12 @@
     "svglist": "./index.js"
   },
   "dependencies": {
-    "camelcase": "^6.3.0",
-    "fs-extra": "^10.0.0",
     "html-to-json": "^0.6.0",
+    "lodash": "^4.17.21",
     "node-dir": "^0.1.17",
-    "prettier": "^2.5.1",
-    "rimraf": "^3.0.2",
-    "svgo": "^2.8.0"
+    "prettier": "^2.8.7",
+    "rimraf": "^4.4.1",
+    "svgo": "^3.0.2"
   },
   "scripts": {
     "generate": "node . generate"

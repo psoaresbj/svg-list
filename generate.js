@@ -1,69 +1,74 @@
-// get node stuff
-const path = require('path');
+const path = require( 'path');
 const dir = require('node-dir');
-const fs = require('fs-extra');
-const camelCase = require('camelcase');
+const { promises: fs, ex, readFile } = require('fs');
+const camelCase = require('lodash/camelCase');
 const htmlToJson = require('html-to-json');
-const prettier = require('prettier');
-const { optimize, loadConfig } = require('svgo');
+const prettier = require( 'prettier');
+const svgo = require('svgo');
 
-// get project root file
-const rootPath = path.resolve(process.cwd());
+const checkDestFolder = async path => {
+  try {
+    const result = await fs.stat(path);
 
-/**
- * REQUIRED
- * require rc file
- * required options:
- *   - src: source of the svg base folder
- *   - dest: destination path for js / json files
- *
- * optional options:
- *   - format: one of `json` || `js` (default: `js`)
- */
-const rc = require(path.resolve(rootPath, '.svglistrc.json'));
+    if (!result.isDirectory()) {
+      throw new Error('Destiny directory not found');
+    }
 
-// set file format
-// from rc file || `js`
-const format = rc?.format === 'json' ? 'json' : 'js';
-const { passAllAttributes } = rc;
+    return true;
+  } catch (error) {
 
-// check if rc file exists
-if ( !rc ) return console.log('You need to add project root file: `.svglistrc.json`');
-if ( !rc || !rc.src ) return console.log('You need to add src field to project root file: `.svglistrc.json`');
-if ( !rc || !rc.dest ) return console.log('You need to add dest field to project root file: `.svglistrc.json`');
+    return;
+  }
+}
 
-// ser `src` and `dest folder`
-const src = path.resolve(process.cwd(), rc.src);
-const dest = path.resolve(process.cwd(), rc.dest);
+const getRc = async () => {
+  try {
+    // get project root file
+    const rootPath = path.resolve(process.cwd());
+    const rcFilePath = path.resolve(rootPath, '.svglistrc.json');
+    const config = await svgo.loadConfig(path.resolve(rootPath, 'config.js'));
 
-/**
- *
- * fn to return directories
- * under the base path
- */
-const getDirs = cb => dir.subdirs(src, (err, dirs) => {
-  // throw error if exists
-  if (err) throw err
+    /**
+     * REQUIRED
+     * require rc file
+     * required options:
+     *   - src: source of the svg base folder
+     *   - dest: destination path for js / json files
+     *
+     * optional options:
+     *   - format: one of `json` || `js` (default: `js`)
+     */
+    const rcFile = await fs.readFile(rcFilePath);
 
-  // transform directories arr
-  // adding path and name
-  const directories = dirs.reduce((acc, directory) => [...acc, {
-    path: path.resolve(directory),
-    name: directory.split(path.sep).pop(),
-  }], []);
+    const rc = JSON.parse(rcFile);
 
-  // return callback
-  return cb(directories);
-});
+    if ( !rc ) throw 'You need to add project root file: `.svglistrc.json`';
+    if ( !rc?.src ) throw 'You need to add src field to project root file: `.svglistrc.json`';
+    if ( !rc?.dest ) throw 'You need to add dest field to project root file: `.svglistrc.json`';
 
-/**
- *
- * @param {string} name sets the list file name
- * @param {object} list json object with svg parts
- *
- * @description Function to save (js/json) files into `dest` with svg data
- */
-const saveList = (name, list) => {
+    // set `src` and `dest folder`
+    const src = path.resolve(process.cwd(), rc.src);
+    const dest = path.resolve(process.cwd(), rc.dest);
+
+    const format = rc?.format === 'json' ? 'json' : 'js';
+
+    const plugins = rc?.plugins || config?.plugins || [];
+
+    const subDirs = await fs.readdir(src);
+
+    const dirs = subDirs?.map(name => ({ path: path.resolve(src, name), name }));
+
+    return { ...rc, dest, dirs, format, plugins, src };
+  } catch (error) {
+    console.log('Error getting RC file:\n', error);
+
+    return;
+  }
+}
+
+const saveList = async (name, list, rc) => {
+  try {
+    const { dest, format } = rc
     const content = format === 'js'
       // if format is `js`
       ? prettier.format(
@@ -78,99 +83,102 @@ const saveList = (name, list) => {
         trailingComma: 'all'
       })
       // if format is `json`
-      : JSON.stringify(list, null, 4)
+      : JSON.stringify(list, null, 2)
     ;
 
     // ensuring the dest folder exists,
     // if not, creates it
-    fs.ensureDir(dest,
-      // create the file with all svgs
-      // data
-      () => fs.writeFile (
-        path.join(dest, `${camelCase(name)}.${format === 'js' ? 'js' : 'json'}`),
-        content,
-        'utf8',
-        () => console.log(`${camelCase(name)} list was saved to '${dest}'`)
-      )
-    )
+    const folderExists = await checkDestFolder(dest);
+
+    // write the file
+    await fs.writeFile(
+      path.join(dest, `${camelCase(name)}.${format === 'js' ? 'js' : 'json'}`),
+      content,
+      'utf8',
+      () => console.log(`${camelCase(name)} list was saved to '${dest}'`)
+    );
+  } catch (error) {
+    console.log(`List "${name}" not created:\n`, error);
+  }
 }
 
-/**
- *
- * @param {array} dirs array of objects with folders info
- * @description function that iterates over directories and returns saveList as callback
- */
-const createLists = (dirs, plugins) => dirs.map((directory, i) => {
-    // creating blank list
-    const list = {};
-    // iterating over all
-    // svg files inside dir
-    dir.readFilesStream(
-      directory.path,
-      { match: /.svg$/ },
-      (err, stream, next) => {
-        // if goes south, throws err
-        if (err) throw err;
-        // stream the file content
-        stream.on('data', (buffer) => {
-          // sets fileName
-          const fileName = camelCase(path.basename(stream.path, '.svg'));
-          const svgString = buffer.toString();
+const parseFile = async ({ dir, key, path: filePath }, rc) => {
+  try {
+    const { plugins, passAllAttributes } = rc;
 
-          const result = optimize(svgString, { path: path.resolve(path.join(directory.path, '/.optimized')), plugins });
+    const file = await fs.readFile(filePath);
 
-          if (!result.data) {
-            console.log(
-              `\nerror in ${fileName} @ ${directory.name}:\n${err}\n`
-            )
-          } else {
-            // get svg as string
-            const html = result.data.toString();
-            // parses the string into json obj
-            htmlToJson.parse(html, function (svg) {
-              // find attrs
-              const viewbox = svg.find('svg').attr('viewbox');
+    const svgString = file.toString();
 
-              // init path arr
-              const paths = [];
-              // iterates over each path
-              // returning an obj with paths
-              // array and viewbox str
-              this.map('path', path => {
-                const attrs = path.attr();
-                const simplePath = path.attr('d');
-                delete attrs.fill;
-                const parsedAttrs = Object.keys(attrs).reduce((result, key) => ({ ...result, [camelCase(key)]: attrs[key] }), {});
-                paths.push(passAllAttributes ? parsedAttrs : simplePath)
-              }).then(
-                () => {
-                  list[fileName] = { viewbox, paths };
-                  next();
-                }
-              );
-            });
-          }
-        });
-      },
-      () => {
-        // run saveList
-        // with this particular
-        // directory data
-        saveList(directory.name, list);
+    const parsed = svgo.optimize(svgString, { path: path.resolve(dir, '/.optimized'), plugins });
+    const htmlString = parsed?.data;
+
+    const svgObj = await htmlToJson.parse(htmlString, function (svg) {
+      const viewbox = svg.find('svg').attr('viewbox');
+
+      const paths = [];
+
+      this.map('path', path => {
+        const attrs = path.attr();
+        const simplePath = path.attr('d');
+        delete attrs.fill;
+        const parsedAttrs = Object.keys(attrs).reduce((result, key) => ({ ...result, [camelCase(key)]: attrs[key] }), {});
+        paths.push(passAllAttributes ? parsedAttrs : simplePath)
+      })
+
+      return { paths, viewbox };
+    });
+
+    return { name: key, svgObj }
+  } catch (error) {
+    console.log(`Error parsing file: "${key}":\n`, error);
+
+    return;
+  }
+}
+
+const createList = async ({ path: dirPath, name }, rc) => {
+  try {
+    const { src: configSrc } = rc;
+    const dirFiles = await fs.readdir(dirPath);
+    const filtered = dirFiles.reduce((result, file) => {
+      if (!file.match(/.svg$/)) {
+        return result;
       }
-    );
-});
 
-// prepare
+      const fileDir = path.resolve(configSrc, name);
+      const filePath = path.resolve(fileDir, file);
+      const key = camelCase(file.replace('.svg', ''));
+
+      return [...result, { dir: fileDir, path: filePath, key }];
+    }, []);
+
+    const files = await Promise.all(filtered.map(async file => {
+      const svgObj = await parseFile(file, rc);
+
+      return svgObj;
+    }));
+
+    const list = files.reduce((results, { name, svgObj }) => ({ ...results, [name]: svgObj }), []);
+
+    return await saveList(name, list, rc);
+  } catch (error) {
+    console.log(`Error generating "${name}" list:\n`, error);
+  }
+}
+
 const generate = async () => {
-  // get default config
-    const config = await loadConfig(path.resolve(__dirname, 'config.js'));
+  try {
+    const rc = await getRc();
 
-    // set svgo plugins
-    // from rc file or default
-    const plugins = rc?.plugins || config?.plugins || [];
+    const { dirs } = rc;
 
-  getDirs(dirs => createLists(dirs, plugins));
+    await Promise.all(dirs.map(async dir => await createList(dir, rc)));
+
+    console.log(`Icon list tasks ended!`);
+  } catch (error) {
+    console.log('Error generating your icons file:\n', error)
+  }
 }
 
 module.exports = generate;
