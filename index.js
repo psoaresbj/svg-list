@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const generate = require('./generate');
+const generate = require('./generate.js');
 
 const [,, ...args] = process.argv;
 
