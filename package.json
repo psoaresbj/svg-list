@@ -6,7 +6,7 @@
   },
   "main": "./index.js",
   "name": "@psoares/svg-list",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Generates a JSON or Javascript list with optimised SVGs strings",
   "engines": {
     "node": ">=15.0.0"
